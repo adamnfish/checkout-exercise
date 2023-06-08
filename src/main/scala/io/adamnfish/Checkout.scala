@@ -1,5 +1,7 @@
 package io.adamnfish
 
+import scala.math.Integral.Implicits.infixIntegralOps
+
 
 /**
  * This is a simple checkout system that takes a list of items and
@@ -23,15 +25,23 @@ object Checkout {
         // but the exercise asks for the simplest possible solution.
         throw new IllegalArgumentException(s"Unknown item: $item")
     }
-    val total = items.map(price).sum
+    val total = orderPrice(items)
     formatMoney(total)
   }
 
-  def price(item: Item): Int = {
-    item match {
-      case Apple => 60
-      case Orange => 25
-    }
+  private val APPLE_PRICE = 60
+  private val ORANGE_PRICE = 25
+
+  def orderPrice(items: List[Item]): Int = {
+    val applesCount = items.count(_ == Apple)
+    val (appleOffersCount, extraApple) = applesCount /% 2
+    val applesPrice = (appleOffersCount * APPLE_PRICE) + (extraApple * APPLE_PRICE)
+
+    val orangesCount = items.count(_ == Orange)
+    val (orangeOffersCount, extraOranges) = orangesCount /% 3
+    val orangesPrice = (orangeOffersCount * ORANGE_PRICE * 2) + (extraOranges * ORANGE_PRICE)
+
+    applesPrice + orangesPrice
   }
 
   def formatMoney(pence: Int): String = {
